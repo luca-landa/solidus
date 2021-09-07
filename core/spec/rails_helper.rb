@@ -16,13 +16,15 @@ require 'database_cleaner'
 
 Dir["./spec/support/**/*.rb"].sort.each { |f| require f }
 
-require 'spree/testing_support/factories'
+require 'spree/testing_support/factory_bot'
 require 'spree/testing_support/preferences'
 require 'spree/testing_support/rake'
 require 'spree/testing_support/job_helpers'
 require 'cancan/matchers'
 
 ActiveJob::Base.queue_adapter = :test
+
+Spree::TestingSupport::FactoryBot.add_paths_and_load!
 
 RSpec.configure do |config|
   config.fixture_path = File.join(__dir__, "fixtures")
@@ -35,7 +37,7 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
 
   config.before :suite do
-    FileUtils.rm_rf(Rails.configuration.storage_path)
+    FileUtils.rm_rf(Rails.configuration.active_storage.service_configurations[:test][:root]) unless ENV['DISABLE_ACTIVE_STORAGE']
     DatabaseCleaner.clean_with :truncation
   end
 

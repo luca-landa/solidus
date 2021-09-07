@@ -76,7 +76,8 @@ module Spree
       end
 
       def parameter_missing_error(exception)
-        message = exception.original_message || exception.message
+        # use original_message to remove DidYouMean suggestions, if defined
+        message = exception.try(:original_message) || exception.message
         render json: {
           exception: message,
           error: message,
@@ -138,7 +139,7 @@ module Spree
       end
 
       def variants_associations
-        [{ option_values: :option_type }, :default_price, :images]
+        [{ option_values: :option_type }, :prices, :images]
       end
 
       def product_includes

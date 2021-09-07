@@ -32,6 +32,7 @@ executors:
       <<: *environment
       DB: mysql
       DB_HOST: 127.0.0.1
+      DB_USERNAME: root
     docker:
       - image: *image
       - image: circleci/mysql:5.7-ram
@@ -114,6 +115,7 @@ jobs:
     parallelism: *parallelism
     environment:
       RAILS_VERSION: '~> 6.0.0'
+      DISABLE_ACTIVE_STORAGE: true
     steps:
       - setup
       - test
@@ -123,6 +125,7 @@ jobs:
     parallelism: *parallelism
     environment:
       RAILS_VERSION: '~> 5.2.0'
+      DISABLE_ACTIVE_STORAGE: true
     steps:
       - setup
       - test

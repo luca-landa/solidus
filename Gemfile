@@ -18,17 +18,14 @@ group :backend, :frontend, :core, :api do
   # and https://github.com/rails/sprockets-rails/issues/369
   gem 'sprockets', '~> 3'
 
-  # Temporary locking money to 6.13.8.
-  # See https://github.com/solidusio/solidus/issues/3903
-  gem 'money', '<= 6.13.8'
-
   platforms :ruby do
-    case ENV['DB']
-    when /mysql/
+    if /mysql/.match?(ENV['DB']) || ENV['DB_ALL']
       gem 'mysql2', '~> 0.5.0', require: false
-    when /postgres/
+    end
+    if /postgres/.match?(ENV['DB']) || ENV['DB_ALL']
       gem 'pg', '~> 1.0', require: false
-    else
+    end
+    if ENV['DB_ALL'] || !/mysql|postgres/.match?(ENV['DB'])
       gem 'sqlite3', require: false
       gem 'fast_sqlite', require: false
     end

@@ -16,7 +16,7 @@ RSpec.describe Spree::Price, type: :model do
 
     context 'when the amount is nil' do
       let(:amount) { nil }
-      it { is_expected.to be_valid }
+      it { is_expected.not_to be_valid }
     end
 
     context 'when the amount is less than 0' do
@@ -94,6 +94,33 @@ RSpec.describe Spree::Price, type: :model do
 
       it 'returns the country object' do
         expect(price.country).to eq(country)
+      end
+    end
+
+    describe '.currently_valid' do
+      it 'prioritizes first those associated to a country' do
+        price_1 = create(:price, country: create(:country))
+        price_2 = create(:price, country: nil) { |price| price.touch }
+
+        result = described_class.currently_valid
+
+        expect(
+          result.index(price_1) < result.index(price_2)
+        ).to be(true)
+      end
+
+      context 'when country data is the same' do
+        it 'prioritizes first those recently updated' do
+          price_1 = create(:price, country: nil)
+          price_2 = create(:price, country: nil)
+          price_1.touch
+
+          result = described_class.currently_valid
+
+          expect(
+            result.index(price_1) < result.index(price_2)
+          ).to be(true)
+        end
       end
     end
   end

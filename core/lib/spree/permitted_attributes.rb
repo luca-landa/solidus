@@ -51,7 +51,13 @@ module Spree
       :month, :year, :expiry, :first_name, :last_name, :name
     ]
 
-    @@customer_return_attributes = [:stock_location_id, return_items_attributes: [:id, :inventory_unit_id, :return_authorization_id, :returned, :amount, :reception_status_event, :acceptance_status, :exchange_variant_id, :resellable]]
+    @@customer_return_attributes = [
+      :stock_location_id, return_items_attributes: [
+        :id, :inventory_unit_id, :return_authorization_id, :returned, :amount,
+        :reception_status_event, :acceptance_status, :exchange_variant_id,
+        :resellable, :return_reason_id
+      ]
+    ]
 
     @@image_attributes = [:alt, :attachment, :position, :viewable_type, :viewable_id]
 
@@ -68,7 +74,7 @@ module Spree
     @@product_properties_attributes = [:property_name, :value, :position]
 
     @@product_attributes = [
-      :name, :description, :available_on, :discontinue_on, :permalink, :meta_description,
+      :name, :description, :available_on, :discontinue_on, :meta_description,
       :meta_keywords, :price, :sku, :deleted_at,
       :option_values_hash, :weight, :height, :width, :depth,
       :shipping_category_id, :tax_category_id,

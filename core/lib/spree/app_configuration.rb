@@ -372,6 +372,28 @@ module Spree
     #   Spree::Wallet::DefaultPaymentBuilder.
     class_name_attribute :default_payment_builder_class, default: 'Spree::Wallet::DefaultPaymentBuilder'
 
+    # Allows providing your own class for managing the contents of an order.
+    #
+    # @!attribute [rw] order_contents_class
+    # @return [Class] a class with the same public interfaces as
+    #   Spree::OrderContents.
+    class_name_attribute :order_contents_class, default: 'Spree::OrderContents'
+
+    # Allows providing your own class for shipping an order.
+    #
+    # @!attribute [rw] order_shipping_class
+    # @return [Class] a class with the same public interfaces as
+    #   Spree::OrderShipping.
+    class_name_attribute :order_shipping_class, default: 'Spree::OrderShipping'
+
+    # Allows providing your own class for managing the inventory units of a
+    # completed order.
+    #
+    # @!attribute [rw] order_cancellations_class
+    # @return [Class] a class with the same public interfaces as
+    #   Spree::OrderCancellations.
+    class_name_attribute :order_cancellations_class, default: 'Spree::OrderCancellations'
+
     # Allows providing your own class for canceling payments.
     #
     # @!attribute [rw] payment_canceller
@@ -437,23 +459,71 @@ module Spree
 
     # Allows switching attachment library for Image
     #
-    # `Spree::Image::PaperclipAttachment`
-    # is the default and provides the classic Paperclip implementation.
+    # `Spree::Image::ActiveStorageAttachment`
+    # is the default and provides the Active Storage implementation.
     #
     # @!attribute [rw] image_attachment_module
     # @return [Module] a module that can be included into Spree::Image to allow attachments
     # Enumerable of images adhering to the present_image_class interface
-    class_name_attribute :image_attachment_module, default: 'Spree::Image::PaperclipAttachment'
+    class_name_attribute :image_attachment_module, default: 'Spree::Image::ActiveStorageAttachment'
+
+    # @!attribute [rw] allowed_image_mime_types
+    #
+    # Defines which MIME types are allowed for images
+    # `%w(image/jpeg image/jpg image/png image/gif).freeze` is the default.
+    #
+    # @return [Array]
+    class_name_attribute :allowed_image_mime_types, default: %w(image/jpeg image/jpg image/png image/gif).freeze
+
+    # @!attribute [rw] product_image_style_default
+    #
+    # Defines which style to default to when style is not provided
+    # :product is the default.
+    #
+    # @return [Symbol]
+    class_name_attribute :product_image_style_default, default: :product
+
+    # @!attribute [rw] product_image_styles
+    #
+    # Defines image styles/sizes hash for styles
+    # `{ mini: '48x48>',
+    #    small: '400x400>',
+    #    product: '680x680>',
+    #    large: '1200x1200>' } is the default.
+    #
+    # @return [Hash]
+    class_name_attribute :product_image_styles, default: { mini: '48x48>',
+                                                          small: '400x400>',
+                                                          product: '680x680>',
+                                                          large: '1200x1200>' }
+    # @!attribute [rw] taxon_image_style_default
+    #
+    # Defines which style to default to when style is not provided
+    # :mini is the default.
+    #
+    # @return [Symbol]
+    class_name_attribute :taxon_image_style_default, default: :mini
+
+    # @!attribute [rw] taxon_styles
+    #
+    # Defines taxon styles/sizes hash for styles
+    # `{ mini: '48x48>',
+    #    small: '400x400>',
+    #    product: '680x680>',
+    #    large: '1200x1200>' } is the default.
+    #
+    # @return [Hash]
+    class_name_attribute :taxon_image_styles, default: { mini: '32x32>', normal: '128x128>' }
 
     # Allows switching attachment library for Taxon
     #
-    # `Spree::Taxon::PaperclipAttachment`
-    # is the default and provides the classic Paperclip implementation.
+    # `Spree::Taxon::ActiveStorageAttachment`
+    # is the default and provides the Active Storage implementation.
     #
     # @!attribute [rw] taxon_attachment_module
     # @return [Module] a module that can be included into Spree::Taxon to allow attachments
     # Enumerable of taxons adhering to the present_taxon_class interface
-    class_name_attribute :taxon_attachment_module, default: 'Spree::Taxon::PaperclipAttachment'
+    class_name_attribute :taxon_attachment_module, default: 'Spree::Taxon::ActiveStorageAttachment'
 
     # Allows providing your own class instance for generating order numbers.
     #

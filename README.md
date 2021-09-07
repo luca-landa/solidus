@@ -42,7 +42,7 @@ As a community-driven project, Solidus relies on funds and time donated by devel
 ### Main Contributor & Director
 At present, Nebulab is the main code contributor and director of Solidus, providing technical guidance and coordinating community efforts and activities.
 
-[![Nebulab](https://nebulab.it/assets/images/public/logo.svg)](https://nebulab.it/)
+[![Nebulab](https://nebulab.com/assets/img/logo-nebulab_black.svg)](https://nebulab.com/)
 
 ### Ambassadors
 Support this project by becoming a Solidus Ambassador. Your logo will show up here with a link to your website. [Become an Ambassador](https://opencollective.com/solidus).
@@ -103,51 +103,19 @@ Begin by making sure you have
 required for Paperclip. (You can install it using [Homebrew](https://brew.sh) if
 you're on a Mac.)
 
-To add solidus, begin with a Rails 5/6 application and a database configured and
-created.
+To add Solidus, begin with a Rails 5.2, 6 or 6.1 application and a database
+configured and created.
 
 ### Installing Solidus
 
-<details>
-  <summary>For Solidus v2.11 and above</summary>
+In your application's root folder run:
 
-  Add the following to your Gemfile.
+```bash
+bundle add solidus
+bin/rails g solidus:install
+```
 
-  ```ruby
-  gem 'solidus'
-  ```
-
-  Run the `bundle` command to install.
-
-  After installing gems, you'll have to run the generator to create necessary
-  configuration files and migrations.
-
-  ```bash
-  bin/rails g solidus:install
-  ```
-</details>
-
-<details>
-  <summary>For Solidus v2.10 and below</summary>
-
-  Add the following to your Gemfile. Skip the `solidus_auth_devise` part
-  if you want to use a custom authentication system.
-
-  ```ruby
-  gem 'solidus'
-  gem 'solidus_auth_devise'
-  ```
-
-  Run the `bundle` command to install.
-
-  After installing gems, you'll have to run the generator to create necessary
-  configuration files and migrations.
-
-  ```bash
-  bin/rails g spree:install
-  ```
-</details>
-
+And follow the prompt's instructions.
 ### Accessing Solidus Store
 
 Start the Rails server with the command:
@@ -238,6 +206,8 @@ and/or customizations to the Solidus admin. Use at your own risk.
   cd solidus
   ```
 
+### Without Docker
+
 * Install the gem dependencies
 
   ```bash
@@ -255,6 +225,60 @@ and/or customizations to the Solidus admin. Use at your own risk.
   export DB=mysql
   bin/setup
   ```
+
+### With Docker
+
+```bash
+docker-compose up -d
+```
+
+Wait for all the gems to be installed (progress can be checked through `docker-compose logs -f app`).
+
+You can provide the ruby version you want your image to use:
+
+```bash
+docker-compose build --build-arg RUBY_VERSION=2.6 app
+docker-compose up -d
+```
+
+The rails version can be customized at runtime through `RAILS_VERSION` environment variable:
+
+```bash
+RAILS_VERSION='~> 5.0' docker-compose up -d
+```
+
+Running tests:
+
+```bash
+# sqlite
+docker-compose exec app bin/rspec
+# postgres
+docker-compose exec app env DB=postgres bin/rspec
+# mysql
+docker-compose exec app env DB=mysql bin/rspec
+```
+
+Accessing the databases:
+
+```bash
+# sqlite
+docker-compose exec app sqlite3 /path/to/db
+# postgres
+docker-compose exec app env PGPASSWORD=password psql -U root -h postgres
+# mysql
+docker-compose exec app mysql -u root -h mysql -ppassword
+```
+
+In order to be able to access the [sandbox application](#sandbox), just make
+sure to provide the appropriate `--binding` option to `rails server`. By
+default, port `3000` is exposed, but you can change it through `SANDBOX_PORT`
+environment variable:
+
+```bash
+SANDBOX_PORT=4000 docker-compose up -d
+docker-compose exec app bin/sandbox
+docker-compose exec app bin/rails server --binding 0.0.0.0 --port 4000
+```
 
 ### Sandbox
 

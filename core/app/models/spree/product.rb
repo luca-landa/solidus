@@ -45,7 +45,6 @@ module Spree
 
     has_many :variants,
       -> { where(is_master: false).order(:position) },
-      inverse_of: :product,
       class_name: 'Spree::Variant'
 
     has_many :variants_including_master,
@@ -60,6 +59,17 @@ module Spree
 
     has_many :line_items, through: :variants_including_master
     has_many :orders, through: :line_items
+
+    scope :sort_by_master_default_price_amount_asc, -> {
+      with_default_price.order('spree_prices.amount ASC')
+    }
+    scope :sort_by_master_default_price_amount_desc, -> {
+      with_default_price.order('spree_prices.amount DESC')
+    }
+    scope :with_default_price, -> {
+      left_joins(master: :prices)
+        .where(master: { spree_prices: Spree::Config.default_pricing_options.desired_attributes })
+    }
 
     def find_or_build_master
       master || build_master
@@ -85,6 +95,7 @@ module Spree
              :has_default_price?,
              :images,
              :price_for,
+             :price_for_options,
              :rebuild_vat_prices=,
              to: :find_or_build_master
 
@@ -327,8 +338,14 @@ module Spree
     # If the master is invalid, the Product object will be assigned its errors
     def validate_master
       unless master.valid?
-        master.errors.each do |att, error|
-          errors.add(att, error)
+        if Gem::Requirement.new(">= 6.1").satisfied_by?(Rails.gem_version)
+          master.errors.each do |error|
+            errors.add(error.attribute, error.message)
+          end
+        else
+          master.errors.each do |att, error|
+            errors.add(att, error)
+          end
         end
       end
     end

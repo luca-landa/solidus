@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'spree/preferences/persistable'
 require 'spree/preferences/statically_configurable'
 
 module Spree
@@ -12,6 +13,8 @@ module Spree
   #
   class PaymentMethod < Spree::Base
     class UnsupportedPaymentMethod < StandardError; end
+
+    include Spree::Preferences::Persistable
 
     preference :server, :string, default: 'test'
     preference :test_mode, :boolean, default: true

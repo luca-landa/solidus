@@ -51,7 +51,7 @@ module Spree
     end
 
     self.whitelisted_ransackable_associations = %w[shipments user order_promotions promotions bill_address ship_address line_items]
-    self.whitelisted_ransackable_attributes = %w[bill_address_name completed_at created_at email number state payment_state shipment_state total store_id]
+    self.whitelisted_ransackable_attributes = %w[completed_at created_at email number state payment_state shipment_state total store_id]
 
     attr_reader :coupon_code
     attr_accessor :temporary_address
@@ -128,7 +128,7 @@ module Spree
     before_create :create_token
     before_create :link_by_email
 
-    validates :email, presence: true, if: :require_email
+    validates :email, presence: true, if: :email_required?
     validates :email, 'spree/email' => true, allow_blank: true
     validates :guest_token, presence: { allow_nil: true }
     validates :number, presence: true, uniqueness: { allow_blank: true, case_sensitive: true }
@@ -269,15 +269,15 @@ module Spree
     end
 
     def contents
-      @contents ||= Spree::OrderContents.new(self)
+      @contents ||= Spree::Config.order_contents_class.new(self)
     end
 
     def shipping
-      @shipping ||= Spree::OrderShipping.new(self)
+      @shipping ||= Spree::Config.order_shipping_class.new(self)
     end
 
     def cancellations
-      @cancellations ||= Spree::OrderCancellations.new(self)
+      @cancellations ||= Spree::Config.order_cancellations_class.new(self)
     end
 
     # Associates the specified user with the order.
@@ -490,7 +490,7 @@ module Spree
         raise CannotRebuildShipments.new(I18n.t('spree.cannot_rebuild_shipments_shipments_not_pending'))
       else
         shipments.destroy_all
-        self.shipments = Spree::Config.stock.coordinator_class.new(self).shipments
+        shipments.push(*Spree::Config.stock.coordinator_class.new(self).shipments)
       end
     end
 
@@ -750,8 +750,13 @@ module Spree
     end
 
     # Determine if email is required (we don't want validation errors before we hit the checkout)
-    def require_email
+    def email_required?
       true unless new_record? || ['cart', 'address'].include?(state)
+    end
+
+    def require_email
+      Spree::Deprecation.warn "Use email_required? instead", caller(1)
+      email_required?
     end
 
     def ensure_inventory_units

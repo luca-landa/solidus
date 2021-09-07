@@ -78,8 +78,11 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
 
   def update_positions
     ActiveRecord::Base.transaction do
-      params[:positions].each do |id, index|
-        model_class.find_by(id: id)&.set_list_position(index)
+      positions = params[:positions]
+      records = model_class.where(id: positions.keys).to_a
+
+      positions.each do |id, index|
+        records.find { |r| r.id == id.to_i }&.set_list_position(index)
       end
     end
 
@@ -184,7 +187,7 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
                   .find_by!(self.class.parent_data[:find_by] => params["#{parent_model_name}_id"])
     instance_variable_set("@#{parent_model_name}", @parent)
   rescue ActiveRecord::RecordNotFound => e
-    resource_not_found(flash_class: e.model.constantize, redirect_url: spree.polymorphic_url([:admin, parent_model_name.pluralize]))
+    resource_not_found(flash_class: e.model.constantize, redirect_url: spree.polymorphic_url([:admin, parent_model_name.pluralize.to_sym]))
   end
 
   def parent?

@@ -11,7 +11,7 @@ module Spree
       variant
     end
 
-    let!(:base_attributes) { Api::ApiHelpers.variant_attributes }
+    let!(:base_attributes) { Spree::Api::Config.variant_attributes }
     let!(:show_attributes) { base_attributes.dup.push(:in_stock, :display_price, :variant_properties) }
     let!(:new_attributes) { base_attributes }
 
@@ -318,6 +318,20 @@ module Spree
             }
           }
         end.to change { Spree::OptionValuesVariant.count }.by(2)
+      end
+
+      it "create new variants with options" do
+        expect do
+          post spree.api_product_variants_path(product), params: {
+            variant: {
+              sku: "12345",
+              options: [{
+                name: 'Color',
+                value: 'White'
+              }]
+            }
+          }
+        end.to change { Spree::OptionValuesVariant.count }.by(1)
       end
 
       it "can update a variant" do

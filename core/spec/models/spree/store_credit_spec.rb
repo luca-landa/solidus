@@ -290,7 +290,13 @@ RSpec.describe Spree::StoreCredit do
 
       subject { store_credit.validate_authorization(store_credit_attrs[:amount], store_credit.currency) }
 
-      it { is_expected.to be_truthy }
+      if RUBY_VERSION >= "3"
+        pending "https://github.com/rails/rails/issues/42098" do
+          it { is_expected.to be_truthy }
+        end
+      else
+        it { is_expected.to be_truthy }
+      end
     end
   end
 
@@ -894,6 +900,14 @@ RSpec.describe Spree::StoreCredit do
       it "assigns the originator as the user that is performing the invalidation" do
         subject
         expect(store_credit.store_credit_events.find_by(action: Spree::StoreCredit::INVALIDATE_ACTION).originator).to eq invalidation_user
+      end
+    end
+  end
+
+  describe "#generate_authorization_code" do
+    it "doesn't rely on time for uniqueness" do
+      freeze_time do
+        expect(subject.generate_authorization_code).not_to eq(subject.generate_authorization_code)
       end
     end
   end
